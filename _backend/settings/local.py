@@ -2,12 +2,12 @@ from .base import *
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lms_db',
-        'USER': 'postgres',
-        'PASSWORD': 'sr',
-        'HOST': 'localhost',
-        'PORT': '8912'
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "lms_postgre_local_database",
+        "USER": "postgres",
+        "PASSWORD": "srreza",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
