@@ -31,6 +31,10 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ["title", "course_count"]
 
 
+class CartAdmin(admin.ModelAdmin):
+    list_display = ["cart_id"]
+
+
 admin.site.register(Teacher)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Course)
@@ -38,7 +42,7 @@ admin.site.register(Variant)
 admin.site.register(VariantItem)
 admin.site.register(QA)
 admin.site.register(QAM)
-admin.site.register(Cart)
+admin.site.register(Cart, CartAdmin)
 admin.site.register(CartOrder)
 admin.site.register(CartOrderItem)
 admin.site.register(Certificate)

@@ -117,7 +117,16 @@ class QASerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = api_model.Cart
-        fields = "__all__"
+        fields = [
+                "course",
+                "user",
+                "price",
+                "tax_fee",
+                "total",
+                "country",
+                "cart_no",
+                "cart_id",
+]
 
 
 class CartOrderItemSerializer(serializers.ModelSerializer):
@@ -146,13 +155,9 @@ class CartOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = api_model.CartOrder
         fields = [
-            "course",
-            "question",
-            "answer",
-            "qa_id",
-            "date",
             "teacher",
             "student",
+            "price",
             "sub_total",
             "tax_fee",
             "initial_total",

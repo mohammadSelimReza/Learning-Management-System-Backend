@@ -229,9 +229,10 @@ class Cart(models.Model):
     tax_fee = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     total = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     country = models.CharField(max_length=50, blank=True, null=True)
-    cart_id = ShortUUIDField(
+    cart_no = ShortUUIDField(
         length=6, max_length=6, alphabet="0123456789", primary_key=True
     )
+    cart_id = ShortUUIDField(length=6, max_length=6, alphabet="0123456789")
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -243,6 +244,7 @@ class CartOrder(models.Model):
         Teacher, on_delete=models.SET_NULL, null=True, blank=True
     )
     student = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    price = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     sub_total = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     tax_fee = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     initial_total = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
@@ -285,6 +287,7 @@ class CartOrderItem(models.Model):
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="order_item"
     )
+    price = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     tax_fee = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     total = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     initial_total = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)

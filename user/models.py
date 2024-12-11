@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.signals import post_save
+from shortuuid.django_fields import ShortUUIDField
 
 
 # Create your models here.
@@ -10,7 +11,9 @@ class User(AbstractUser):
     full_name = models.CharField(max_length=255, blank=True)
     otp = models.CharField(max_length=6, null=True, blank=True, default="123456")
     refresh = models.CharField(max_length=255, null=True, blank=True, default="x")
-
+    user_id = ShortUUIDField(
+        length=6, max_length=6, alphabet="0123456789", primary_key=True
+    )
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
 
