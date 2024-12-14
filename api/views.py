@@ -1,20 +1,24 @@
+from decimal import Decimal
+
+import requests
+import stripe
+from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from api import serializers as api_serializer
 from api import models as api_model
+from api import serializers as api_serializer
 from user.models import User
 
 from .validators import generate_random_otp
-from rest_framework import viewsets
 
-from decimal import Decimal
+stripe.api_key=settings.STRIPE_SECRET_KEY
 
 
 # Create your views here.
@@ -310,4 +314,142 @@ class CheckoutAPIView(generics.RetrieveAPIView):
      queryset = api_model.CartOrder.objects.all()
      lookup_field = 'oid'
      
-     
+
+class CouponAPIView(generics.CreateAPIView):
+    serializer_class = api_serializer.CouponSerializer
+    permission_classes = [AllowAny]
+    
+    def create(self, request, *args, **kwargs):
+        order_oid = request.data['order_oid']
+        coupon_code = request.data['coupon_code']
+        
+        order = api_model.CartOrder.objects.get(oid=order_oid)
+        coupon = api_model.Coupon.objects.get(code=coupon_code)
+        print(order)
+        print(coupon)
+        
+        if coupon:
+            order_items = api_model.CartOrderItem.objects.filter(order=order,teacher=coupon.teacher)
+            print(order_items)
+            for o in order_items:
+                print(o)
+                print(o.coupons)
+                if not coupon in o.coupons.all():
+                    discount = o.total * coupon.discount /100
+                    o.total -= discount
+                    o.price -= discount
+                    o.saved += discount
+                    o.coupons.add(coupon)
+                    o.applied_coupon = True
+                    
+                    order.coupons.add(coupon)
+                    order.total -= discount
+                    order.sub_total -= discount
+                    order.saved += discount
+                    
+                    o.save()
+                    order.save()
+                    coupon.used_by.add(order.student)
+                    return Response({"message":"Coupon found and activated"},status=status.HTTP_201_CREATED)
+                else:
+                    return Response({"message":"Coupon Already Applied"},status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"message":"Coupon not found"},status=status.HTTP_404_NOT_FOUND)
+        
+        
+        
+        
+class StripeCheckoutAPIView(generics.CreateAPIView):
+    serializer_class = api_serializer.CartOrderSerializer
+    permission_classes = [AllowAny]
+    
+    def create(self, request, *args, **kwargs):
+        order_oid = self.kwargs['order_oid']
+        order = api_model.CartOrder.objects.get(oid=order_oid)
+        
+        if not order:
+            return Response({"message":"Order not found"},status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            checkout_session= stripe.checkout.Session.create(
+                customer_email = order.email,
+                payment_method_types=['card'],
+                line_items=[
+                    {
+                        'price_data':{
+                            'currency':'usd',
+                            'product_data':{
+                                'name':order.full_name,
+                            },
+                            'unit_amount':int(order.total*100),
+                        },
+                        'quantity':1,
+                    }
+                ],
+                mode='payment',
+                success_url=settings.FRONTEND_SUCCESS_URL + '/payment-success/' + order.oid + '?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=settings.FRONTEND_SUCCESS_URL + '/payment-failed/',
+                
+            )
+            print("ck",checkout_session)
+            order.strip_session_id = checkout_session.id
+            return redirect(checkout_session.url)
+        except:
+            return Response({"message":"Something went wrong while try to make payment"},status=status.HTTP_404_NOT_FOUND)
+        
+
+
+    
+
+class PaymentSuccessAPIView(generics.CreateAPIView):
+    serializer_class = api_serializer.CartOrderSerializer
+    queryset = api_model.CartOrder.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        order_oid = request.data['order_oid']
+        session_id = request.data['session_id']
+
+        order = api_model.CartOrder.objects.get(oid=order_oid)
+        order_items = api_model.CartOrderItem.objects.filter(order=order)
+        # strip payment
+        if session_id != 'null':
+            session = stripe.checkout.Session.retrieve(session_id)
+            if session.payment_status == 'paid':
+                if order.payment_status == 'Processing':
+                    order.payment_status = 'Paid'
+                    order.save()
+                    api_model.Notification.objects.create(user=order.student,order=order,type="Course Enrollment Completed")
+                    for o in order_items:
+                        api_model.Notification.objects.create(
+                            teacher = o.teacher,
+                            order=order,
+                            order_item=o,
+                            type="New Order"
+                        )
+                        api_model.EnrolledCourse.objects.create(
+                            course=o.course,
+                            user=order.student,
+                            teacher =o.teacher,
+                            order_item=o,
+                        )
+                    return Response({"message":"Payment Successful"})
+                else:
+                    return Response({"message":"Already Paid"})
+            else:
+                return Response({"message":"Payment Failed"})
+        else:
+            return Response({"message":"Stripe Payment Failed"})
+        
+        
+        
+        
+        
+        
+        
+class SearchCourseAPIView(generics.CreateAPIView):
+    serializer_class= api_serializer.CourseSerializer
+    permission_classes= [AllowAny]
+    
+    def get_queryset(self):
+        query = self.request.GET.get('query')
+        return api_model.Course.objects.filter(title__icontains=query,platform_status='Published',teacher_course_status='Published')

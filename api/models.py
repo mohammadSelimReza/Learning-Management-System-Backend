@@ -221,7 +221,21 @@ class QAM(models.Model):
     def __str__(self):
         return self.qa_id
 
+class Coupon(models.Model):
+    teacher = models.ForeignKey(
+        Teacher, on_delete=models.SET_NULL, blank=True, null=True
+    )
+    used_by = models.ManyToManyField(User, blank=True)
+    code = models.CharField(max_length=50)
+    discount = models.IntegerField(default=1)
+    active = models.BooleanField(default=False)
+    date = ShortUUIDField(
+        length=6, max_length=6, alphabet="0123456789", primary_key=True
+    )
 
+    def __str__(self):
+        return self.code
+    
 class Cart(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -257,7 +271,7 @@ class CartOrder(models.Model):
     email = models.EmailField(max_length=100)
 
     country = models.CharField(max_length=50, blank=True, null=True)
-    coupons = models.ManyToManyField("api.Coupon", blank=True)
+    coupons = models.ManyToManyField(Coupon, blank=True)
     strip_session_id = models.CharField(max_length=1000, blank=True, null=True)
     oid = ShortUUIDField(
         length=6, max_length=6, alphabet="0123456789", primary_key=True
@@ -292,12 +306,7 @@ class CartOrderItem(models.Model):
     total = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     initial_total = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     saved = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
-    coupons = models.ForeignKey(
-        "api.Coupon",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
+    coupons = models.ManyToManyField(Coupon, blank=True)
     applied_coupon = models.BooleanField(default=False)
     oid = ShortUUIDField(
         length=6, max_length=6, alphabet="0123456789", primary_key=True
@@ -430,20 +439,7 @@ class Notification(models.Model):
         return self.type
 
 
-class Coupon(models.Model):
-    teacher = models.ForeignKey(
-        Teacher, on_delete=models.SET_NULL, blank=True, null=True
-    )
-    used_by = models.ManyToManyField(User, blank=True)
-    code = models.CharField(max_length=50)
-    discount = models.IntegerField(default=1)
-    active = models.BooleanField(default=False)
-    date = ShortUUIDField(
-        length=6, max_length=6, alphabet="0123456789", primary_key=True
-    )
 
-    def __str__(self):
-        return self.code
 
 
 class Wishlist(models.Model):

@@ -24,6 +24,7 @@ urlpatterns = [
     ),
     path('course/category/',api_views.CategoryView.as_view(),name='categoryView'),
     path('course/course/',api_views.CourseView.as_view(),name='courseView'),
+    path("course/search/",api_views.SearchCourseAPIView.as_view(),name='newOrder'),
     path('course/course/<slug>',api_views.CourseDetailView.as_view(),name='courseView'),
     path('course/cart/add/',api_views.CartAPIView.as_view(),name='courseView'),
     path('course/cart/<cart_id>/',api_views.CartListAPIView.as_view(),name='courseView'),
@@ -31,5 +32,8 @@ urlpatterns = [
     path('course/cart/<cart_id>/<item_id>/',api_views.CartItemDeleteApiView.as_view(),name='courseView'),
     path("order/create-order/",api_views.CreateOrderAPIView.as_view(),name='newOrder'),
     path("order/checkout/<oid>/",api_views.CheckoutAPIView.as_view(),name='newOrder'),
+    path("order/coupon/",api_views.CouponAPIView.as_view(),name='newOrder'),
+    path("payment/stripe-checkout/<order_oid>/",api_views.StripeCheckoutAPIView.as_view(),name='newOrder'),
+    path("payment/payment-success/",api_views.PaymentSuccessAPIView.as_view(),name='newOrder'),
     
 ]
