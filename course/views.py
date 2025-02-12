@@ -312,9 +312,9 @@ class PaymentWithSSLCommerz(generics.CreateAPIView):
                 'total_amount': order.total,  
                 'currency': "BDT", 
                 'tran_id': transaction_id, 
-                'success_url': f"http://127.0.0.1:8000/api/v1/order/payment/sslcommerz/confirmation/{order_oid}/{transaction_id}/",
-                'fail_url': "http://127.0.0.1:8000/api/v1/order/payment/sslcommerz/fail/", 
-                'cancel_url': "http://localhost:5173/payment/cancel/", 
+                'success_url': f"https://edusoft-three.vercel.app/api/v1/order/payment/sslcommerz/confirmation/{order_oid}/{transaction_id}/",
+                'fail_url': "https://edusoft-three.vercel.app/api/v1/order/payment/sslcommerz/fail/", 
+                'cancel_url': "https://edusoft-lms.netlify.app/payment/cancel/", 
                 'emi_option': 0,
                 'cus_name': order.full_name,
                 'cus_email': order.email,
@@ -362,13 +362,13 @@ class PaymentConfirm(views.APIView):
             return Response({"message": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # ✅ Return JSON response with redirect URL
-        return redirect(f"http://localhost:5173/payment/success/{transaction_id}/")
+        return redirect(f"https://edusoft-lms.netlify.app/payment/success/{transaction_id}/")
 class PaymentFail(views.APIView):
     serializer_class = course_serializer.CartOrderSerializer
     queryset = course_model.CartOrder.objects.all()
 
     def post(self,request):
-        return redirect(f"http://localhost:5173/payment/fail/")
+        return redirect(f"https://edusoft-lms.netlify.app/payment/fail/")
  
     
 class ReviewView(viewsets.ModelViewSet):
