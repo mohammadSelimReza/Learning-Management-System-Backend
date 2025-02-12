@@ -29,7 +29,7 @@ class RegistrationAPIView(generics.CreateAPIView):
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             # 
-            confirm_link = f"http://127.0.0.1:8000/api/v1/user/activate/{uid}/{token}"
+            confirm_link = f"https://edusoft-three.vercel.app/api/v1/user/activate/{uid}/{token}"
             email_subject = "Confirm your mail"
             email_body = render_to_string('confirm_email.html',{'confirm_link':confirm_link})
             email = EmailMultiAlternatives(email_subject,'',to=[user.email])
@@ -53,8 +53,8 @@ def activate_account(request,uid64,token):
     if user is not None:
         user.is_active =True
         user.save()
-        return redirect(f"http://localhost:5173/login/")
-    return redirect(f"http://localhost:5173/")
+        return redirect(f"https://edusoft-lms.netlify.app/login")
+    return redirect(f"https://edusoft-lms.netlify.app")
 
 class ResetPasswordView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
