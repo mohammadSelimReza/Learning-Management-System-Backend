@@ -1,39 +1,57 @@
-from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
+from user import views as user_view
+from course import views as course_view
+from django.urls import path,include
 from rest_framework import routers
-from api import views as api_views
-from django.urls import include, path
 
 router = routers.DefaultRouter()
-
-# router.register(r"teacher", api_views.TeacherView, basename="teacherView")
+router.register(r"review",course_view.ReviewView,basename="review")
+router.register(r"blog",course_view.BlogAPIView,basename="blog")
 
 urlpatterns = [
-    path("user/token/", api_views.MyTokenObtainPairView.as_view(), name="token"),
-    path("user/token/refresh/", TokenRefreshView.as_view(), name="refreshToken"),
-    path("user/registration/", api_views.RegisterView.as_view(), name="registration"),
+    path("",include(router.urls)),
+    # 
+    path('user/registrations/',user_view.RegistrationAPIView.as_view(),name="create-user"),
+    path('user/activate/<uid64>/<token>/',user_view.activate_account,name="confirmation"),
+    path('user/token/',user_view.MyTokenObtainPairView.as_view(),name="access_token"),
     path(
         "user/password-reset/<email>/",
-        api_views.ResetPasswordView.as_view(),
+        user_view.ResetPasswordView.as_view(),
         name="passwordReset",
     ),
     path(
         "user/password-change/",
-        api_views.PasswordChangeAPIView.as_view(),
+        user_view.PasswordChangeAPIView.as_view(),
         name="passwordChange",
     ),
-    path('course/category/',api_views.CategoryView.as_view(),name='categoryView'),
-    path('course/course/',api_views.CourseView.as_view(),name='courseView'),
-    path("course/search/",api_views.SearchCourseAPIView.as_view(),name='newOrder'),
-    path('course/course/<slug>',api_views.CourseDetailView.as_view(),name='courseView'),
-    path('course/cart/add/',api_views.CartAPIView.as_view(),name='courseView'),
-    path('course/cart/<cart_id>/',api_views.CartListAPIView.as_view(),name='courseView'),
-    path('course/cart/stat/<cart_id>/',api_views.CartDetailAPIView.as_view(),name='courseView'),
-    path('course/cart/<cart_id>/<item_id>/',api_views.CartItemDeleteApiView.as_view(),name='courseView'),
-    path("order/create-order/",api_views.CreateOrderAPIView.as_view(),name='newOrder'),
-    path("order/checkout/<oid>/",api_views.CheckoutAPIView.as_view(),name='newOrder'),
-    path("order/coupon/",api_views.CouponAPIView.as_view(),name='newOrder'),
-    path("payment/stripe-checkout/<order_oid>/",api_views.StripeCheckoutAPIView.as_view(),name='newOrder'),
-    path("payment/payment-success/",api_views.PaymentSuccessAPIView.as_view(),name='newOrder'),
+    path(
+        "user/profile-upate/<user_id>",
+        user_view.ProfileUpdate.as_view(),
+        name="profileUpdate",
+    ),
+    path(
+        "user/password-upate/<user_id>",
+        user_view.PasswordUpdateAPIView.as_view(),
+        name="profileUpdate",
+    ),
+    # 
+    path('course/category/',course_view.CategoryView.as_view(),name='categoryView'),
+    path('course/course/',course_view.CourseView.as_view(),name='courseView'),
+    path('course/course/<slug>',course_view.CourseDetailView.as_view(),name='courseView'),
+    path('course/cart/add/',course_view.CartAPIView.as_view(),name='courseView'),
+    path('course/cart/<cart_id>/',course_view.CartListAPIView.as_view(),name='courseView'),
+    path('course/cart/stat/<cart_id>/',course_view.CartDetailAPIView.as_view(),name='courseView'),
+    path('course/cart/<cart_id>/<item_id>/',course_view.CartItemDeleteApiView.as_view(),name='courseView'),
+    path("order/create-order/",course_view.CreateOrderAPIView.as_view(),name='newOrder'),
+    path("order/check-order/<user_id>",course_view.StudentOrderAPIView.as_view(),name='newOrder'),
+    path("order/checkout/<oid>/",course_view.CheckoutAPIView.as_view(),name='newOrder'),
+    path("order/coupon/",course_view.CouponAPIView.as_view(),name='newOrder'),
+    path("order/payment/sslcommerz/",course_view.PaymentWithSSLCommerz.as_view(),name="sslcommerz"),
+    path("order/payment/sslcommerz/confirmation/<order_oid>/<transaction_id>/",course_view.PaymentConfirm.as_view(), name="sslcommerz_confirmation"),
+    path("order/payment/sslcommerz/fail/",course_view.PaymentFail.as_view(), name="sslcommerz_confirmation"),
     
 ]
+
+
+
+
+

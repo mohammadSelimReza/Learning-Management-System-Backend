@@ -1,8 +1,63 @@
-venv/
-.pytest_cache
-\*\***pycache**/
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
 db.sqlite3
+media/
+env/
+venv/
 .env
-.coverage
-.vscode
-requirements_local.txt
+.env.local
+.env*.local
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Static files (if collected)
+staticfiles/
+
+# Node.js/npm (if applicable)
+node_modules/
+npm-debug.log*
+
+# Python
+*.py[cod]
+*$py.class
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environment
+.env/
+.venv/
+venv/
+ENV/
+
+# Database migrations (optional, but be cautious)
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# macOS
+.DS_Store
+
+# Windows
+local.py
+Thumbs.db
+requirements.txt

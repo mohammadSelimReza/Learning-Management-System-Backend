@@ -42,3 +42,10 @@ NOTI_TYPE = (
     ("Course Enrollment Completed","Course Enrollment Completed"),
     ("New Order","New Order"),
 )
+
+COUNTRY = (
+    ("BD","BD"),
+    ("USA","USA"),
+    ("CANADA","CANADA"),
+    ("RUSSIA","RUSSIA"),
+)
