@@ -180,7 +180,7 @@ class CartOrder(models.Model):
     coupons = models.ManyToManyField(Coupon, blank=True)
     strip_session_id = models.CharField(max_length=1000, blank=True, null=True)
     oid = ShortUUIDField(
-        length=6, max_length=6, alphabet="0123456789", primary_key=True
+        length=15, max_length=30, alphabet="abcdefghijklmnopqrstuvwxyz0123456789", primary_key=True
     )
     date = models.DateTimeField(auto_now_add=True)
 
@@ -216,7 +216,7 @@ class CartOrderItem(models.Model):
     coupons = models.ManyToManyField(Coupon, blank=True)
     applied_coupon = models.BooleanField(default=False)
     oid = ShortUUIDField(
-        length=6, max_length=6, alphabet="0123456789", primary_key=True
+        length=15, max_length=30, alphabet="abcdefghijklmnopqrstuvwxyz0123456789", primary_key=True
     )
     date = models.DateTimeField(auto_now_add=True)
 
@@ -236,7 +236,7 @@ class EnrolledCourse(models.Model):
     )
     order_item = models.ForeignKey(CartOrderItem, on_delete=models.CASCADE)
     enrolled_id = ShortUUIDField(
-        length=6, max_length=6, alphabet="0123456789", primary_key=True
+        length=15, max_length=30, alphabet="abcdefghijklmnopqrstuvwxyz0123456789", primary_key=True
     )
     date = models.DateTimeField(auto_now_add=True)
 
@@ -263,7 +263,7 @@ class Review(models.Model):
     repy = models.CharField(blank=True, null=True, max_length=1000)
     active = models.BooleanField(default=False)
     review_id = ShortUUIDField(
-        length=6, max_length=6, alphabet="0123456789", primary_key=True
+        length=15, max_length=30, alphabet="abcdefghijklmnopqrstuvwxyz0123456789", primary_key=True
     )
     date = models.DateTimeField(auto_now_add=True)
 
@@ -291,7 +291,7 @@ class Blog(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     title = models.CharField(max_length=255,unique=True)
     blog_id = ShortUUIDField(
-        length=12, max_length=12, alphabet="0123456789", primary_key=True,unique=True
+        length=15, max_length=30, alphabet="abcdefghijklmnopqrstuvwxyz0123456789", primary_key=True,unique=True
     )
     blog_img = models.URLField(blank=True,null=True)
     date = models.DateTimeField(auto_now_add=True)
