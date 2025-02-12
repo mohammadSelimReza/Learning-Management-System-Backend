@@ -6,10 +6,7 @@ from _backend.settings.base import DEBUG
 
 def main():
     """Run administrative tasks."""
-    if DEBUG == False:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', '_backend.settings.production')
-    else:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', '_backend.settings.local')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', '_backend.settings.production')
         
     try:
         from django.core.management import execute_from_command_line
