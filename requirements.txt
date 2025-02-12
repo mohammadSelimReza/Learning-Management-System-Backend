@@ -10,7 +10,7 @@ drf-yasg
 idna
 inflection
 packaging
-psycopg2
+psycopg2-binary
 PyJWT
 python-dotenv
 pytz
