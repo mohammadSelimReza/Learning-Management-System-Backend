@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from .validators import generate_random_otp
+from _backend.settings.base import FRONTEND_URL,BACKEND_URL
 # Create your views here.
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = user_serializer.MyTokenPairSerializer
@@ -29,7 +30,7 @@ class RegistrationAPIView(generics.CreateAPIView):
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             # 
-            confirm_link = f"https://edusoft-three.vercel.app/api/v1/user/activate/{uid}/{token}"
+            confirm_link = f"{BACKEND_URL}/user/activate/{uid}/{token}"
             email_subject = "Confirm your mail"
             email_body = render_to_string('confirm_email.html',{'confirm_link':confirm_link})
             email = EmailMultiAlternatives(email_subject,'',to=[user.email])
@@ -53,8 +54,8 @@ def activate_account(request,uid64,token):
     if user is not None:
         user.is_active =True
         user.save()
-        return redirect(f"https://edusoft-lms.netlify.app/login")
-    return redirect(f"https://edusoft-lms.netlify.app")
+        return redirect(f"{FRONTEND_URL}/login")
+    return redirect(f"{FRONTEND_URL}")
 
 class ResetPasswordView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
@@ -70,7 +71,7 @@ class ResetPasswordView(generics.RetrieveAPIView):
             refreshToken = str(refresh.access_token)
             user.refresh = refreshToken
             user.save()
-            link = f"http://localhost:5173/create-new-password/?otp={user.otp}&uuidb64={uuidb64}&refresh={refreshToken}"
+            link = f"{FRONTEND_URL}/create-new-password/?otp={user.otp}&uuidb64={uuidb64}&refresh={refreshToken}"
             merge_data = {
                 "link": link,
                 "username": user.username,

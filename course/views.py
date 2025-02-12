@@ -8,7 +8,7 @@ from user.models import User
 from course import models as course_model
 from .validators import generate_transaction_id
 from course import serializers as course_serializer
-
+from _backend.settings.base import FRONTEND_URL,BACKEND_URL
 # Create your views here.
 class CategoryView(generics.ListAPIView):
     queryset = course_model.Category.objects.filter(active=True)
@@ -312,9 +312,9 @@ class PaymentWithSSLCommerz(generics.CreateAPIView):
                 'total_amount': order.total,  
                 'currency': "BDT", 
                 'tran_id': transaction_id, 
-                'success_url': f"https://edusoft-three.vercel.app/api/v1/order/payment/sslcommerz/confirmation/{order_oid}/{transaction_id}/",
-                'fail_url': "https://edusoft-three.vercel.app/api/v1/order/payment/sslcommerz/fail/", 
-                'cancel_url': "https://edusoft-lms.netlify.app/payment/cancel/", 
+                'success_url': f"{BACKEND_URL}/order/payment/sslcommerz/confirmation/{order_oid}/{transaction_id}/",
+                'fail_url': f"{BACKEND_URL}/order/payment/sslcommerz/fail/", 
+                'cancel_url': f"{FRONTEND_URL}/payment/cancel/", 
                 'emi_option': 0,
                 'cus_name': order.full_name,
                 'cus_email': order.email,
@@ -362,13 +362,13 @@ class PaymentConfirm(views.APIView):
             return Response({"message": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # ✅ Return JSON response with redirect URL
-        return redirect(f"https://edusoft-lms.netlify.app/payment/success/{transaction_id}/")
+        return redirect(f"{FRONTEND_URL}/payment/success/{transaction_id}/")
 class PaymentFail(views.APIView):
     serializer_class = course_serializer.CartOrderSerializer
     queryset = course_model.CartOrder.objects.all()
 
     def post(self,request):
-        return redirect(f"https://edusoft-lms.netlify.app/payment/fail/")
+        return redirect(f"{FRONTEND_URL}/payment/fail/")
  
     
 class ReviewView(viewsets.ModelViewSet):

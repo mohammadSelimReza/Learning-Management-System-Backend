@@ -209,3 +209,5 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS")
 SSLCOMMERZ_STORE_ID= os.getenv("STORE_ID")
 SSLCOMMERZ_STORE_PASS=os.getenv("STORE_PASS")
+FRONTEND_URL="https://edusoft-lms.netlify.app"
+BACKEND_URL="https://learning-management-system-backend-pi.vercel.app/api/v1"
