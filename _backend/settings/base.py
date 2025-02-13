@@ -40,7 +40,7 @@ CORS_ALLOWED_ORIGINS = [
 INSTALLED_APPS = [
     # pre:
     "whitenoise.runserver_nostatic",
-    'jazzmin',
+    # 'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -137,46 +137,46 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 AUTH_USER_MODEL = "user.User"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-JAZZMIN_SETTINGS = {
-    "site_title": "Library Admin",
-    "site_header": "Library",
-    "site_brand": "Library",
-    "welcome_sign": "Welcome to the library",
-    "copyright": "Acme Library Ltd",
-    "show_ui_builder": True,
-}
+# JAZZMIN_SETTINGS = {
+#     "site_title": "Library Admin",
+#     "site_header": "Library",
+#     "site_brand": "Library",
+#     "welcome_sign": "Welcome to the library",
+#     "copyright": "Acme Library Ltd",
+#     "show_ui_builder": True,
+# }
 
-JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": True,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": False,
-    "accent": "accent-primary",
-    "navbar": "navbar-dark",
-    "no_navbar_border": False,
-    "navbar_fixed": False,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": False,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": True,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": False,
-    "sidebar_nav_compact_style": False,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "cyborg",
-    "dark_mode_theme": "cyborg",
-    "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success",
-    },
-}
+# JAZZMIN_UI_TWEAKS = {
+#     "navbar_small_text": True,
+#     "footer_small_text": False,
+#     "body_small_text": False,
+#     "brand_small_text": False,
+#     "brand_colour": False,
+#     "accent": "accent-primary",
+#     "navbar": "navbar-dark",
+#     "no_navbar_border": False,
+#     "navbar_fixed": False,
+#     "layout_boxed": False,
+#     "footer_fixed": False,
+#     "sidebar_fixed": False,
+#     "sidebar": "sidebar-dark-primary",
+#     "sidebar_nav_small_text": True,
+#     "sidebar_disable_expand": False,
+#     "sidebar_nav_child_indent": False,
+#     "sidebar_nav_compact_style": False,
+#     "sidebar_nav_legacy_style": False,
+#     "sidebar_nav_flat_style": False,
+#     "theme": "cyborg",
+#     "dark_mode_theme": "cyborg",
+#     "button_classes": {
+#         "primary": "btn-primary",
+#         "secondary": "btn-secondary",
+#         "info": "btn-info",
+#         "warning": "btn-warning",
+#         "danger": "btn-danger",
+#         "success": "btn-success",
+#     },
+# }
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=50),
@@ -211,6 +211,6 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS")
 SSLCOMMERZ_STORE_ID= os.getenv("STORE_ID")
 SSLCOMMERZ_STORE_PASS=os.getenv("STORE_PASS")
 # FRONTEND_URL="http://localhost:5173"
-# BACKEND_URL="http://127.0.0.1:8000/api/v1/"
+# BACKEND_URL="http://127.0.0.1:8000/api/v1"
 FRONTEND_URL="https://edusoft-lms.netlify.app"
 BACKEND_URL="https://learning-management-system-backend-pi.vercel.app/api/v1"
