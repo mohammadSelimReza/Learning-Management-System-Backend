@@ -27,14 +27,25 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1",".vercel.app","https://edusoft-lms.netlify.app"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    ".vercel.app",
+    "edusoft-lms.netlify.app",
+]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:8000",
     "https://edusoft-lms.netlify.app",
-    "https://learning-management-system-backend-pi.vercel.app"
+    "https://learning-management-system-backend-pi.vercel.app",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+
+# Allow credentials if needed (e.g., cookies, tokens)
+CORS_ALLOW_CREDENTIALS = True
+
+# Remove this line to avoid conflicts
+# CORS_ALLOW_ALL_ORIGINS = True
+
 # Application definition
 
 INSTALLED_APPS = [
