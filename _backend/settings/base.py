@@ -32,7 +32,6 @@ ALLOWED_HOSTS = [
     ".vercel.app",
     "edusoft-lms.netlify.app",
 ]
-
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:8000",
@@ -42,7 +41,8 @@ CORS_ALLOWED_ORIGINS = [
 
 # Allow credentials if needed (e.g., cookies, tokens)
 CORS_ALLOW_CREDENTIALS = True
-
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+CORS_ALLOW_HEADERS = ["*"]
 # Remove this line to avoid conflicts
 # CORS_ALLOW_ALL_ORIGINS = True
 
@@ -50,6 +50,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 INSTALLED_APPS = [
     # pre:
+    "corsheaders",
     "whitenoise.runserver_nostatic",
     'jazzmin',
     'django.contrib.admin',
@@ -61,7 +62,6 @@ INSTALLED_APPS = [
     # outside app:
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
-    "corsheaders",
     'drf_yasg',
     # custom app:
     "api",
