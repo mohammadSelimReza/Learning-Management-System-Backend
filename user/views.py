@@ -141,3 +141,10 @@ class ProfileUpdate(generics.RetrieveUpdateAPIView):
         user_id = self.kwargs['user_id']
         user = user_model.User.objects.get(user_id=user_id)
         return user_model.Profile.objects.get(user=user)
+    def perform_update(self, serializer):
+        profile = serializer.instance
+        new_name = self.request.data.get("full_name")
+        if new_name:
+            profile.user.full_name = new_name
+            profile.user.save()
+        serializer.save()

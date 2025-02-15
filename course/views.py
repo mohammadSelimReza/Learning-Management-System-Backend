@@ -371,9 +371,45 @@ class PaymentFail(views.APIView):
         return redirect(f"{FRONTEND_URL}/payment/fail/")
  
     
-class ReviewView(viewsets.ModelViewSet):
+class ReviewView(generics.ListCreateAPIView):
     serializer_class = course_serializer.ReviewSerializer
     queryset = course_model.Review.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        user_id = request.data.get("user_id")
+        course_id = request.data.get("course_id")
+        review = request.data.get("review")
+        rating = request.data.get("rating")
+        print("user",user_id)
+        print("user",course_id)
+        print("user",review)
+        print("user",rating)
+        # Check and get user
+        user = None
+        if user_id is not None:
+            try:
+                user = User.objects.get(user_id=user_id)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check and get course
+        course = None
+        if course_id is not None:
+            try:
+                course = course_model.Course.objects.get(course_id=course_id)
+            except course_model.Course.DoesNotExist:
+                return Response({"error": "Course not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Create the review
+        course_model.Review.objects.create(
+            user=user,
+            course=course,
+            review=review,
+            rating=rating,
+            active=True,
+        )
+        return Response({"message": "Review has been created"}, status=status.HTTP_201_CREATED)
+
 
 
 class BlogAPIView(viewsets.ModelViewSet):
@@ -381,3 +417,6 @@ class BlogAPIView(viewsets.ModelViewSet):
     queryset = course_model.Blog.objects.all()
 
 
+class EnrollmentAPIView(generics.ListAPIView):
+    serializer_class = course_serializer.EnrolledCourseSerializer
+    queryset = course_model.EnrolledCourse.objects.all()

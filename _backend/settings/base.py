@@ -25,29 +25,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    ".vercel.app",
-    "edusoft-lms.netlify.app",
-]
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:8000",
-    "https://edusoft-lms.netlify.app",
-    "https://learning-management-system-backend-pi.vercel.app",
-]
-
-# Allow credentials if needed (e.g., cookies, tokens)
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-CORS_ALLOW_HEADERS = ["*"]
-# Remove this line to avoid conflicts
+ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOWS_CREDENTIALS = True
 # Application definition
-
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+}
 INSTALLED_APPS = [
     # pre:
     "corsheaders",
@@ -61,7 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # outside app:
     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',
+    'rest_framework_simplejwt',
     'drf_yasg',
     # custom app:
     "api",
@@ -221,7 +212,7 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS")
 SSLCOMMERZ_STORE_ID= os.getenv("STORE_ID")
 SSLCOMMERZ_STORE_PASS=os.getenv("STORE_PASS")
-# FRONTEND_URL="http://localhost:5173"
-# BACKEND_URL="http://127.0.0.1:8000/api/v1"
-FRONTEND_URL="https://edusoft-lms.netlify.app"
-BACKEND_URL="https://learning-management-system-backend-pi.vercel.app/api/v1"
+FRONTEND_URL="http://localhost:5173"
+BACKEND_URL="http://127.0.0.1:8000/api/v1"
+# FRONTEND_URL="https://edusoft-lms.netlify.app"
+# BACKEND_URL="https://learning-management-system-backend-pi.vercel.app/api/v1"

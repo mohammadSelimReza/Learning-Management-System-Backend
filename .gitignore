@@ -17,8 +17,6 @@ venv/
 *.swp
 *.swo
 
-# Static files (if collected)
-staticfiles/
 
 # Node.js/npm (if applicable)
 node_modules/
