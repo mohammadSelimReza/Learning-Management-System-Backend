@@ -3,6 +3,8 @@ from rest_framework import generics,status,viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
 from user import serializers as user_serializer
 from user import models as user_model
+from course import models as course_model
+from course import serializers as course_serializer
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
 from django.utils.encoding import force_bytes,force_str
@@ -148,3 +150,20 @@ class ProfileUpdate(generics.RetrieveUpdateAPIView):
             profile.user.full_name = new_name
             profile.user.save()
         serializer.save()
+        
+class TeacherInfo(generics.ListAPIView):
+    serializer_class = user_serializer.TeacherSerializer
+    permission_classes = [AllowAny]
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        queryset = user_model.Teacher.objects.filter(user=user_id)
+        return queryset
+    
+class TeacherCourseList(generics.ListAPIView):
+    serializer_class = course_serializer.CourseSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        teacher_id = self.kwargs['id']
+        teacher = user_model.Teacher.objects.get(id=teacher_id)
+        return course_model.Course.objects.filter(teacher=teacher)

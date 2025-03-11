@@ -11,6 +11,9 @@ class MyTokenPairSerializer(TokenObtainPairSerializer):
         token["full_name"] = user.full_name
         token["username"] = user.username
         token["user_id"] = user.user_id
+        token['email'] = user.email
+        token['user_type'] = user.profile.user_type
+        token['image'] =user.profile.image
         return token
   
   
@@ -26,7 +29,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
         model = user_model.Teacher
-        fields = "__all__"  
+        fields = ['id','user']
     
 class RegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(

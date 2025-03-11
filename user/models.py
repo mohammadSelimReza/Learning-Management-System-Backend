@@ -40,7 +40,7 @@ class Profile(models.Model):
     city = models.CharField(max_length=255,blank=True,null=True,default="me")
     country = models.CharField(max_length=255,blank=True,null=True,default="me")
     date = models.DateTimeField(auto_now_add=True)
-    user_type = models.CharField(max_length=255,blank=True,null=True,default="Student")
+    user_type = models.CharField(max_length=255,blank=True,null=True,default="student")
     def __str__(self):
         if self.full_name:
             return str(self.full_name)

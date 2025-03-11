@@ -6,6 +6,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 router = routers.DefaultRouter()
 # router.register(r"course/review",course_view.ReviewView,basename="review")
 router.register(r"blog",course_view.BlogAPIView,basename="blog")
+router.register(r"course/action",course_view.CourseActionAPIView,basename="course")
 # This app is only created for keeping API endpoint at a place.You will find all URLs of this project in here.
 # for models >> go individual app (app: course , app:user )
 urlpatterns = [
@@ -38,6 +39,7 @@ urlpatterns = [
     # course related all endpoints:
     path('course/category/',course_view.CategoryView.as_view(),name='categoryView'),
     path('course/course/',course_view.CourseView.as_view(),name='courseView'),
+    path('course/list/',course_view.CourseCardView.as_view(),name='courseList'),
     path('course/course/<slug>',course_view.CourseDetailView.as_view(),name='courseView'),
     path('course/enrollment/',course_view.EnrollmentAPIView.as_view(),name='enroll'),
     path('course/cart/add/',course_view.CartAPIView.as_view(),name='courseView'),
@@ -54,7 +56,11 @@ urlpatterns = [
     path("order/payment/sslcommerz/",course_view.PaymentWithSSLCommerz.as_view(),name="sslcommerz"),
     path("order/payment/sslcommerz/confirmation/<order_oid>/<transaction_id>/",course_view.PaymentConfirm.as_view(), name="sslcommerz_confirmation"),
     path("order/payment/sslcommerz/fail/",course_view.PaymentFail.as_view(), name="sslcommerz_confirmation"),
-    
+    path("teacher/info/<user_id>/",user_view.TeacherInfo.as_view(),name="teacherInfo"),
+    path("teacher/summary/<teacher_id>/",course_view.TeacherSummaryAPIView.as_view(),name="teacherSummary"),
+    path("teacher/course/list/<id>/",user_view.TeacherCourseList.as_view(),name="teacherCourseList"),
+    path("teacher/best/course/<teacher_id>/",course_view.TeacherBestSellingCourseAPIView.as_view({'get':'list'}),name="bestSales"),
+     
 ]
 
 

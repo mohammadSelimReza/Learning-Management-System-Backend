@@ -54,15 +54,15 @@ class Course(models.Model):
     price = models.DecimalField(decimal_places=2, max_digits=12, default=0.00)
     language = models.CharField(choices=LANGUAGE, max_length=20)
     level = models.CharField(choices=LEVEL, max_length=20)
-    platform_status = models.CharField(choices=PLATFORM_STATUS, max_length=20)
+    platform_status = models.CharField(choices=PLATFORM_STATUS, max_length=20,db_index=True)
     teacher_course_status = models.CharField(
-        choices=TEACHER_COURSE_STATUS, max_length=12
+        choices=TEACHER_COURSE_STATUS, max_length=12,db_index=True
     )
     featured = models.BooleanField(default=False)
     course_id = ShortUUIDField(
         length=6, max_length=6, alphabet="0123456789", primary_key=True
     )
-    slug = models.SlugField(unique=True, blank=True, null=True)
+    slug = models.SlugField(unique=True, blank=True, null=True,db_index=True)
     date = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -96,7 +96,7 @@ class Course(models.Model):
     
     
 class Variant(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE,related_name='variants')
     title = models.CharField(max_length=30, unique=True)
     varient_id = ShortUUIDField(
         length=6, max_length=6, alphabet="0123456789", primary_key=True
@@ -229,7 +229,7 @@ class CartOrderItem(models.Model):
     def __str__(self):
         return self.oid
 class EnrolledCourse(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE,related_name="enrolled_courses")
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     teacher = models.ForeignKey(
         Teacher, on_delete=models.SET_NULL, blank=True, null=True

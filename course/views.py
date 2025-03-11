@@ -1,23 +1,83 @@
 from decimal import Decimal
 from django.shortcuts import redirect,get_object_or_404
 from sslcommerz_lib import SSLCOMMERZ 
-from rest_framework import generics,viewsets,status,views
+from rest_framework import generics,viewsets,status,views,pagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from user.models import User
+from user.models import User,Teacher
 from course import models as course_model
 from .validators import generate_transaction_id
 from course import serializers as course_serializer
 from _backend.settings.base import FRONTEND_URL,BACKEND_URL
+from django.db.models import Count
+from django.core.cache import cache
+from datetime import timedelta
+from django.utils import timezone
+from django.db import models
+from django_filters.rest_framework import DjangoFilterBackend
+
 # Create your views here.
 class CategoryView(generics.ListAPIView):
-    queryset = course_model.Category.objects.filter(active=True)
     serializer_class = course_serializer.CategoriySerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        cache_key = "category_list"
+
+        # Try to get cached serialized data
+        cached_data = cache.get(cache_key)
+        if cached_data is not None:
+            return cached_data  # Already serialized, no DB or serialization cost
+
+        # Optimized Query: Precompute course_count using annotate()
+        queryset = course_model.Category.objects.filter(active=True).annotate(
+            course_count=Count("course")
+        )
+
+        # Serialize and store in cache
+        serialized_data = self.get_serializer(queryset, many=True).data
+        cache.set(cache_key, serialized_data, timeout=60 * 20)  # Cache JSON, not queryset
+
+        return serialized_data
+        
 class CourseView(generics.ListAPIView):
     queryset = course_model.Course.objects.filter(platform_status='Published',teacher_course_status='Published')
     serializer_class = course_serializer.CourseSerializer
     permission_classes = [AllowAny]
+    
+class CoursePagination(pagination.PageNumberPagination):
+    page_size = 9
+    page_size_query_param = page_size
+    max_page_size = 100
+class CourseCardView(generics.ListAPIView): 
+    pagination_class = CoursePagination
+    serializer_class = course_serializer.CourseCardSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        cache_key = "course_list"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return cached_data
+
+        queryset = (
+                        course_model.Course.objects.filter(
+                            platform_status="Published", 
+                            teacher_course_status="Published", 
+                        )
+                        .select_related("teacher", "category")
+                        .annotate(
+                            total_students=Count("enrolled_courses"),
+                            total_lessons=Count("variants__variant_items")
+                        )
+                    )
+
+        # Cache the queryset (store as a list to prevent caching issues)
+        cache.set(cache_key, queryset, timeout=60*2)
+        return queryset
+
+
     
 class CourseDetailView(generics.RetrieveAPIView):
     serializer_class = course_serializer.CourseSerializer
@@ -420,3 +480,87 @@ class BlogAPIView(viewsets.ModelViewSet):
 class EnrollmentAPIView(generics.ListAPIView):
     serializer_class = course_serializer.EnrolledCourseSerializer
     queryset = course_model.EnrolledCourse.objects.all()
+    
+    
+class TeacherSummaryAPIView(generics.ListAPIView):
+    serializer_class = course_serializer.TeacherSummarySerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        teacher_id = self.kwargs['teacher_id']
+        
+        try:
+            teacher = Teacher.objects.get(id=teacher_id)
+        except Teacher.DoesNotExist:
+            return []
+
+        one_month_ago = timezone.now() - timedelta(days=28)
+
+        # Aggregate total revenue
+        total_courses = course_model.Course.objects.filter(teacher=teacher).count()
+        total_revenue = course_model.CartOrderItem.objects.filter(teacher=teacher).aggregate(
+            total_revenue=models.Sum("price")
+        )["total_revenue"] or 0
+
+        monthly_revenue = course_model.CartOrderItem.objects.filter(teacher=teacher, date__gte=one_month_ago).aggregate(
+            monthly_revenue=models.Sum("price")
+        )["monthly_revenue"] or 0  # Fixed variable name
+
+        # Optimized student fetching
+        enrolled_courses = course_model.EnrolledCourse.objects.filter(teacher=teacher).select_related("user__profile")
+        unique_student_ids = set()
+        students = []
+
+        for course in enrolled_courses:
+            if course.user_id not in unique_student_ids:
+                unique_student_ids.add(course.user_id)
+                student = {
+                    "full_name": course.user.profile.full_name,
+                    "image": course.user.profile.image if course.user.profile.image else None,
+                    "country": course.user.profile.country,
+                    "date": course.date,
+                }
+                students.append(student)
+
+        return [{
+            "total_courses": total_courses,
+            "total_revenue": total_revenue,
+            "monthly_revenue": monthly_revenue,
+            "total_students": len(students),
+        }]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+class CourseActionAPIView(viewsets.ModelViewSet):
+    queryset = course_model.Course.objects.all()
+    serializer_class = course_serializer.CourseCreateSerializer
+    permission_classes = [AllowAny]
+
+
+class TeacherBestSellingCourseAPIView(viewsets.ViewSet):
+    def list(self, request, teacher_id=None):
+        teacher = Teacher.objects.get(id=teacher_id)
+        courses_with_total_price = []
+        courses = course_model.Course.objects.filter(teacher=teacher)
+
+        for course in courses:
+            revenue = course.enrolled_courses.aggregate(total_price=models.Sum('order_item__price'))['total_price'] or 0
+            sales = course.enrolled_courses.count()
+            courses_with_total_price.append({
+                'courses_image': course.image,
+                'course_title': course.title,
+                'revenue': revenue,
+                'sales': sales
+            })
+        
+        # **Sort courses by sales in descending order**
+        best_selling_courses = sorted(courses_with_total_price, key=lambda x: x['sales'], reverse=True)
+
+        # **Return only courses that have at least one sale**
+        filtered_courses = [course for course in best_selling_courses if course['sales'] > 0]
+
+        return Response(filtered_courses)
+    

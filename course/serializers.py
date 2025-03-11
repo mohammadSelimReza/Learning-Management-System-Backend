@@ -9,7 +9,7 @@ from user import serializers as model_serializer
 class CategoriySerializer(serializers.ModelSerializer):
     class Meta:
         model = course_model.Category
-        fields = ["title", "image", "slug", "course_count"]
+        fields = ["id","title", "image", "slug", "course_count"]
 
 class VariantItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -199,6 +199,17 @@ class CourseSerializer(serializers.ModelSerializer):
         else:
             self.Meta.depth = 3
 
+class CourseCardSerializer(serializers.ModelSerializer):
+    category = serializers.CharField(source="category.title")  # Get category name
+    teacher = serializers.CharField(source="teacher.full_name")  # Get teacher name
+    total_students = serializers.IntegerField()  # Use precomputed count
+    total_lessons = serializers.IntegerField()  # Use precomputed count
+
+    class Meta:
+        model = course_model.Course
+        fields = ["course_id", "slug", "price", "image", "title", "category", "teacher", "total_students", "total_lessons"]
+
+
 class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = course_model.Blog
@@ -208,3 +219,13 @@ class BlogSerializer(serializers.ModelSerializer):
             "blog_text",
             "slug",
         ]
+        
+class TeacherSummarySerializer(serializers.Serializer):
+    total_courses = serializers.IntegerField(default=0)
+    total_students = serializers.IntegerField(default=0)
+    total_revenue = serializers.IntegerField(default=0)
+    monthly_revenue = serializers.IntegerField(default=0)
+class CourseCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = course_model.Course
+        fields = '__all__'
